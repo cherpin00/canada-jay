@@ -11,6 +11,8 @@ import glob
 
 from cryptography.fernet import Fernet
 
+g_driveRoot = "canada_jay_root"
+
 def run(cmd):
     subprocess.call(cmd.split())
     # subprocess.Popen(cmd.split())
@@ -88,28 +90,52 @@ def decrypt(fileName):
     with open(fileName, 'wb') as dec_file:
         dec_file.write(decrypted)
 
-def split(drives, files, prefix="split"):
+def split(drives, files, prefix="split"): #TODO: Add option to pass in folders instead of just files
     for file in files:
-        encrypt(file)
-        numParts = len(drives)
-        fileSize = os.path.getsize(file)
-        partSize = fileSize//numParts
-        if (fileSize % numParts > 0):
-            partSize += 1
+        try:
+            encrypt(file)
+            numParts = len(drives)
+            fileSize = os.path.getsize(file)
+            partSize = fileSize//numParts
+            if (fileSize % numParts > 0):
+                partSize += 1
 
-        tmpFolder = "temp"
-        if not os.path.exists(tmpFolder):
-            os.mkdir(tmpFolder)
-        run(f"split -b {partSize} {file} {os.path.join(tmpFolder, prefix)}-{file}-")
+            tmpFolder = "temp"
+            if not os.path.exists(tmpFolder):
+                os.mkdir(tmpFolder)
+            run(f"split -b {partSize} {file} {os.path.join(tmpFolder, prefix)}-{file}-")
 
-        count = 0
-        for obj in os.scandir(tmpFolder):
-            if obj.is_file():
-                if not os.path.exists(drives[count]):
-                    os.mkdir(drives[count])
-                logging.debug(f"moving {obj.path} to {drives[count]}")
-                shutil.move(obj.path, drives[count])
+            count = 0
+            for obj in os.scandir(tmpFolder):
+                if obj.is_file():
+                    destination = os.path.join(drives[count], g_driveRoot) + os.path.sep
+                    destination = os.path.join(destination, os.path.basename(obj.path))
+                    if not os.path.exists(os.path.join(drives[count], g_driveRoot)): #TODO: Add option to make drive if not exists.
+                        curdir = os.getcwd()
+                        try:
+                            logging.debug(f"Creating {g_driveRoot} folder in {drives[count]}")
+                            os.chdir(drives[count])
+                            os.mkdir(g_driveRoot)
+                        except Exception as e: #TODO: Don't except all errors here.  Might be okay because we throw it again
+                            logging.error(f"Could not create root folder {g_driveRoot} in {drives[count]}.  Please create it manually.")
+                            logging.info(f"Could not create root folder {g_driveRoot} in {drives[count]}.  Please create it manually.")
+                            shutil.rmtree(tmpFolder) #TODO: Create on cleanup function that we can call so we DRY
+                            exit(1)
+                        finally:
+                            os.chdir(curdir)
+                    logging.debug(f"moving {obj.path} to {destination}")
+                    try:
+                        shutil.move(obj.path, destination)
+                    except shutil.Error as e:
+                        logging.error(f"Failed moving {obj.path} to {os.path.abspath(destination)}.  Exiting.")
+                        logging.error(f"Error message: {e}")
+                        exit(1)
                 count+=1
+        except Exception as e: #TODO: add a status (maybe in a file or database.  So that we can undo the steps if we get an error)
+            decrypt(file)
+            raise e
+
+        os.remove(file)
     if os.path.exists(tmpFolder):
         os.rmdir(tmpFolder)
 
@@ -120,6 +146,7 @@ def join(drives, files, prefix="split"):
         os.mkdir(tempFolder)
 
     for folder in drives:
+        folder = os.path.join(folder, g_driveRoot)
         for file in glob.glob(os.path.join(folder, f"{prefix}-*")):
             name = file.split(os.path.sep)[-1]
             if name.split("-")[1] in files:
@@ -130,11 +157,11 @@ def join(drives, files, prefix="split"):
     for current_file in files:
         toJoin = glob.glob(os.path.join(tempFolder, f"*{current_file}*"))
         if not len(toJoin) > 0:
-            logging.warning(f"Cannot fine file {current_file}. Skipping.")
+            logging.warning(f"Cannot find file {current_file}. Skipping.")
             continue
         toJoin.sort()
         logging.debug(f"Concatenating files {toJoin}")
-        output_file = current_file + ".out"
+        output_file = current_file
         concat_files(output_file, toJoin) #TODO: allow there to be -'s in the name.  We need to escape them somehow
         decrypt(output_file)
         for f in toJoin: #TODO: Don't do this if the previous stuff fails
@@ -148,7 +175,7 @@ def main():
     logging.getLogger().setLevel(logging.DEBUG)
     parser = get_parser()
     if len(sys.argv) == 1:
-        args = parser.parse_args("-d drive1 drive2 -f test.txt -j".split(" "))
+        args = parser.parse_args("-d google_drive one_drive -f test.txt".split(" "))
     else:
         args = parser.parse_args()
 
@@ -159,3 +186,17 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+"""
+TODO: Test run spit twice in a row
+TODO: Test run join twice in a row
+TODO: Fail correctly.  If we can not make all the splits make sure to make none of them.
+
+
+Test cases:
+No root directory in 1 of drives
+No root directory in all of drives
+Input file does not exists
+Drives does not exist
+Cannot read or write to Drive
+"""
