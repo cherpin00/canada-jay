@@ -1,3 +1,4 @@
+import sys
 import os
 import subprocess
 import argparse
@@ -7,6 +8,8 @@ import itertools
 from string import ascii_lowercase
 from time import sleep
 import glob
+
+from cryptography.fernet import Fernet
 
 def run(cmd):
     subprocess.call(cmd.split())
@@ -31,8 +34,63 @@ def concat_files(outputFile, fileNames):
                 for line in infile:
                     outfile.write(line)
 
+def gen_key():
+    # key generation
+    key = Fernet.generate_key()
+  
+    # string the key in a file
+    with open('filekey.key', 'wb') as filekey: #TODO: Don't hardcode keyfile name
+        filekey.write(key)
+
+def get_key():
+    filenName = 'filekey.key'
+    if not os.path.exists(filenName):
+        logging.error(f"Encryption key does not exist please create one useing gen_key()")
+        exit(1)
+
+    with open(filenName, 'rb') as filekey:
+        key = filekey.read()
+    return key
+
+def encrypt(fileName):
+    key = get_key()
+  
+    # using the generated key
+    fernet = Fernet(key)
+    
+    # opening the original file to encrypt
+    with open(fileName, 'rb') as file:
+        original = file.read()
+        
+    # encrypting the file
+    encrypted = fernet.encrypt(original)
+    
+    # opening the file in write mode and 
+    # writing the encrypted data
+    with open(fileName, 'wb') as encrypted_file:
+        encrypted_file.write(encrypted)
+
+def decrypt(fileName):
+    key = get_key()
+
+    # using the key
+    fernet = Fernet(key)
+    
+    # opening the encrypted file
+    with open(fileName, 'rb') as enc_file:
+        encrypted = enc_file.read()
+    
+    # decrypting the file
+    decrypted = fernet.decrypt(encrypted)
+    
+    # opening the file in write mode and
+    # writing the decrypted data
+    with open(fileName, 'wb') as dec_file:
+        dec_file.write(decrypted)
+
 def split(drives, files, prefix="split"):
     for file in files:
+        encrypt(file)
         numParts = len(drives)
         fileSize = os.path.getsize(file)
         partSize = fileSize//numParts
@@ -76,7 +134,9 @@ def join(drives, files, prefix="split"):
             continue
         toJoin.sort()
         logging.debug(f"Concatenating files {toJoin}")
-        concat_files(current_file + ".out", toJoin) #TODO: allow there to be -'s in the name.  We need to escape them somehow
+        output_file = current_file + ".out"
+        concat_files(output_file, toJoin) #TODO: allow there to be -'s in the name.  We need to escape them somehow
+        decrypt(output_file)
         for f in toJoin: #TODO: Don't do this if the previous stuff fails
             logging.debug(f"Deleting file {f}.")
             os.remove(f)
@@ -87,8 +147,11 @@ def join(drives, files, prefix="split"):
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
     parser = get_parser()
-    # args = parser.parse_args()
-    args = parser.parse_args("-d drive1 drive2 -f test.txt -j".split(" "))
+    if len(sys.argv) == 1:
+        args = parser.parse_args("-d drive1 drive2 -f test.txt -j".split(" "))
+    else:
+        args = parser.parse_args()
+
     if args.join:
         join(args.drives, args.files)
     else:
