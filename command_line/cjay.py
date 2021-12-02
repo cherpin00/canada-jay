@@ -16,6 +16,7 @@ def get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--drives", nargs="+", required=True, help="list of relitive paths to split your data to") #nargs="+" takes 1 or more arguments
     parser.add_argument("-f", "--files", nargs="+", default=["test"], help="input file to split")
+    parser.add_argument("-j", "--join", action="store_true", help="Join the specified files using drives specified.")
     return parser
 
 def iter_all_strings():
@@ -66,15 +67,19 @@ def join(drives, files, prefix="split"):
             if name.split("-")[1] in files:
                 destination = os.path.join(tempFolder, name)
                 logging.debug(f"moving {file} to {destination}")
-                shutil.copy(file, destination) #TODO: Add feature to copy or move
+                shutil.move(file, destination) #TODO: Add feature to copy or move
     
     for current_file in files:
         toJoin = glob.glob(os.path.join(tempFolder, f"*{current_file}*"))
         if not len(toJoin) > 0:
+            logging.warning(f"Cannot fine file {current_file}. Skipping.")
             continue
         toJoin.sort()
         logging.debug(f"Concatenating files {toJoin}")
         concat_files(current_file + ".out", toJoin) #TODO: allow there to be -'s in the name.  We need to escape them somehow
+        for f in toJoin: #TODO: Don't do this if the previous stuff fails
+            logging.debug(f"Deleting file {f}.")
+            os.remove(f)
     if os.path.exists(tempFolder):
         os.rmdir(tempFolder)
 
@@ -83,9 +88,11 @@ def main():
     logging.getLogger().setLevel(logging.DEBUG)
     parser = get_parser()
     # args = parser.parse_args()
-    args = parser.parse_args("-d drive1 drive2 -f test.txt".split(" "))
-    # split(args.drives, args.files)
-    join(args.drives, args.files)
+    args = parser.parse_args("-d drive1 drive2 -f test.txt -j".split(" "))
+    if args.join:
+        join(args.drives, args.files)
+    else:
+        split(args.drives, args.files)
 
 if __name__ == "__main__":
     main()
