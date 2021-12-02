@@ -72,7 +72,7 @@ def join(drives, files, prefix="split"):
     for current_file in files:
         toJoin = glob.glob(os.path.join(tempFolder, f"*{current_file}*"))
         if not len(toJoin) > 0:
-            logging.warning(f"Cannot fine file {current_file}. Skipping.")
+            logging.warning(f"Cannot find file {current_file}. Skipping.")
             continue
         toJoin.sort()
         logging.debug(f"Concatenating files {toJoin}")
