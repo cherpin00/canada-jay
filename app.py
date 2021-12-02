@@ -21,6 +21,8 @@ def pythonFunction(wildcard="*"):
     if dialog.ShowModal() == wx.ID_OK:
         path = dialog.GetPath()
         print(path)
+        eel.inner_element_file_change(path)
+        eel.add_filename_change(path)
     else:
         path = None
     dialog.Destroy()

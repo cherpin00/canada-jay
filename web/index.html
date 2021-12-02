@@ -6,16 +6,66 @@
     <title>Eel example</title>
 
     <link rel="stylesheet" href="css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300&amp;display=swap" rel="stylesheet">
+    <link
+    href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+    rel="stylesheet"
+  />
     <script type="text/javascript" src="/eel.js"></script> 
 </head>
+
+<!-- correctly appends-->
+
 <body>
     <div class="topnav">
-        <a class="active" id="button-name">Display name</a>
-        <a id="button-number">Display a random number</a>
-        <a id="button-date">Display time and date</a>
-        <a id="button-ip">Display my ip</a>
-        <a onclick="getPathToFile()">File in C drive</a>
-      </div> 
+        <div class="child"> 
+            <h1 class="header"> CanadaJay </h1>
+        </div>
+        <div class="child logo"><h1>Logo Here</h1></div>
+    </div> 
+
+    <div class="content-wrapper">
+        <div class="content-flex">
+            <div class="content-wrapper-child">
+                <div class="child-child">
+                    <h2>Split</h2>
+                    <!--<p>File Added:</p>-->
+                    <p id="filename" class="file"></p>
+                    <br>
+                    <div class="file-split-header">
+                        <div class="split-header"><h3> Files to Split: </h3></div>
+                        <div><p id="button">Choose File</p></div>
+                    </div>
+                    <div class="class-for-filenames" id="id-files">
+                        <!-- if count = 1 -->
+
+                    </div>
+
+                    <br>
+                    <h3> Drives Used:</h3>
+                    <p>Drive 1</p>
+                    <p> Drive 2</p>
+                    <p> Drive 3</p>
+                </div>
+            </div>
+            <div class="content-wrapper-child">
+                <div class="child-child">
+                    <h2> Reconstruct</h2>
+                    <p>File1</p>
+                    <p>File2</p>
+                    <p>File3</p>
+                    <p>File4</p>
+                    <p>File5</p>
+                    <p>File6</p>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-stat">
+            <h2>Statistics and Settings</h2>
+        </div>
+    </div>
+    <!-- set max width -->
+    <!-- scss -->
 </body>
 <script src="js/main.js"></script>
 </html>
