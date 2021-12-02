@@ -75,12 +75,8 @@ def join(drives, files, prefix="split"):
         toJoin.sort()
         logging.debug(f"Concatenating files {toJoin}")
         concat_files(current_file + ".out", toJoin) #TODO: allow there to be -'s in the name.  We need to escape them somehow
-
-    
-        
-
-    # if os.path.exists(tempFolder):
-        # os.rmdir(tempFolder)
+    if os.path.exists(tempFolder):
+        os.rmdir(tempFolder)
 
 
 def main():
