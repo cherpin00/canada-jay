@@ -10,6 +10,12 @@ function prompt_alerts(description) {
   alert(description);
 }
 
+eel.expose(remove_to_split);
+function remove_to_split(){
+  const myNode = document.getElementById("id-files");
+  myNode.innerHTML = '';
+}
+
 eel.expose(db);
 function db() {
   eel.load_db();
@@ -25,55 +31,44 @@ eel.expose(add_filename_change);
 function add_filename_change(path) {
   console.log(path);
   const para = document.createElement("p");
-  para.setAttribute("id", "file" + file_count);
+  para.setAttribute("id", file_count);
   para.setAttribute("class", "file");
   const myArray = path.split("/");
-  console.log(myArray);
   const node = document.createTextNode(myArray.at(-1) );
   para.appendChild(node);
   const element = document.getElementById("id-files");
   element.appendChild(para);
 
   const div = document.createElement("div");
-  div.setAttribute("id", "div" + file_count);
+  div.setAttribute("id", file_count);
   div.setAttribute("class", "inline-div");
   element.appendChild(div);
   file_count ++;
 }
 
-eel.expose(add_para);
-function add_para(content, element_name) {
-  const para = document.createElement("p");
-  para.setAttribute("id", "drive" + drive_count);
+eel.expose(add_content);
+function add_content(content, element_name, parent_element_name, element_type, unique_id) {
+  const para = document.createElement(element_type);
+  para.setAttribute("id", unique_id);
   para.setAttribute("class", element_name);
-  const node = document.createTextNode(content );
-  para.appendChild(node);
-  const element = document.getElementById(element_name);
+  if(element_type == "p"){
+    if(parent_element_name == "files_saved"){
+      const myArray = content.split("/");
+      node = document.createTextNode(myArray.at(-1) );
+      para.onclick = function() { // Note this is a function
+        eel.get_file_path(this.id);
+        document.getElementById(this.id).remove();
+      };
+    }
+    else{
+      node = document.createTextNode(content);
+    }
+    para.appendChild(node);
+  }
+  const element = document.getElementById(parent_element_name);
   element.appendChild(para);
-
-  const div = document.createElement("div");
-  div.setAttribute("id", "div" + drive_count);
-  div.setAttribute("class", "inline-div");
-  element.appendChild(div);
-  drive_count ++;
 }
 
-eel.expose(add_para_file);
-function add_para_file(content, element_name) {
-  const para = document.createElement("p");
-  para.setAttribute("id", "file_saved" + drive_count);
-  para.setAttribute("class", element_name);
-  const node = document.createTextNode(content );
-  para.appendChild(node);
-  const element = document.getElementById(element_name);
-  element.appendChild(para);
-
-  const div = document.createElement("div");
-  div.setAttribute("id", "div" + drive_count);
-  div.setAttribute("class", "inline-div");
-  element.appendChild(div);
-  drive_count ++;
-}
 
 eel.expose(getPathToFile);
 function getPathToFile() {

@@ -47,8 +47,7 @@ h3{
 .content-wrapper-child{
   width: 48%;
   background-color: white;
-  /*box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.1);*/
-  /*border-radius: 20px;*/
+  box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.1);
 }
 
 .child-child{
@@ -59,7 +58,7 @@ h3{
   max-width: 1000px;
   margin: 30px auto;
   background-color: white;
-  /*box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.1);*/
+  box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.1);
   /*border-radius: 20px;*/
   padding: 20px;
   height: 200px;
@@ -149,10 +148,14 @@ h3{
   width: 50%;
 }
 
-.drives{
+.drive, .file_saved{
   word-break: break-all;
   padding: 4px 0px;
-  width: 80%;
+}
+
+.file_saved:hover{
+  cursor: pointer;
+  background-color: #f4f4f4;
 }
 
 .right{
