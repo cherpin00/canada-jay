@@ -2,6 +2,8 @@ import random
 from datetime import datetime
 import sys
 from time import sleep
+import os
+#from tinydb import TinyDB, Query
 
 import eel
 
@@ -13,6 +15,8 @@ from command_line.cjay import split
 
 eel.init('web')
 root = tk.Tk()
+#db = TinyDB('path/to/db.json')
+#User = Query()
 
 files = {}
 drives = {}
@@ -41,6 +45,10 @@ def drive_addition(drive_count):
 def split_function_call():
     print(files)
     print(drives)
-    
+
+    files_list = [x.replace("/", os.path.sep) for x in files.values()]
+    drives_list = [x.replace("/", os.path.sep) for x in drives.values()]
+    split(drives_list, files_list)
+
 
 eel.start('index.html')

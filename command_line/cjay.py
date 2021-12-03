@@ -5,7 +5,7 @@ import logging
 import shutil
 import glob
 
-from utils import encrypt, decrypt, my_split, run, concat_files
+from utils import encrypt, decrypt, my_split, run, concat_files, slugify
 
 g_driveRoot = "canada_jay_root"
 
@@ -29,7 +29,7 @@ def split(drives, files, prefix="split"): #TODO: Add option to pass in folders i
             tmpFolder = "temp"
             if not os.path.exists(tmpFolder):
                 os.mkdir(tmpFolder)
-            my_split(file, partSize, f"{os.path.join(tmpFolder, prefix)}-{file}-")
+            my_split(file, partSize, f"{os.path.join(tmpFolder, prefix)}-{slugify(file)}-")
             # run(f"split -b {partSize} {file} {os.path.join(tmpFolder, prefix)}-{file}-")
 
             count = 0
