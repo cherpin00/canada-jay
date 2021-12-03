@@ -15,6 +15,7 @@ from command_line.cjay import split
 
 eel.init('web')
 root = tk.Tk()
+root.wm_attributes('-topmost', 1)
 db = TinyDB('db.json')
 User = Query()
 
