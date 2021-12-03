@@ -1,21 +1,13 @@
 import sys
 import os
-import subprocess
 import argparse
 import logging
 import shutil
-import itertools
-from string import ascii_lowercase
-from time import sleep
 import glob
 
-from cryptography.fernet import Fernet
+from utils import encrypt, decrypt, run, concat_files
 
 g_driveRoot = "canada_jay_root"
-
-def run(cmd):
-    subprocess.call(cmd.split())
-    # subprocess.Popen(cmd.split())
 
 def get_parser():
     parser = argparse.ArgumentParser()
@@ -23,72 +15,6 @@ def get_parser():
     parser.add_argument("-f", "--files", nargs="+", default=["test"], help="input file to split")
     parser.add_argument("-j", "--join", action="store_true", help="Join the specified files using drives specified.")
     return parser
-
-def iter_all_strings():
-    for size in itertools.count(1):
-        for s in itertools.product(ascii_lowercase, repeat=size):
-            yield "".join(s)
-
-def concat_files(outputFile, fileNames):
-    with open(outputFile, 'w') as outfile:
-        for fname in fileNames:
-            with open(fname) as infile:
-                for line in infile:
-                    outfile.write(line)
-
-def gen_key():
-    # key generation
-    key = Fernet.generate_key()
-  
-    # string the key in a file
-    with open('filekey.key', 'wb') as filekey: #TODO: Don't hardcode keyfile name
-        filekey.write(key)
-
-def get_key():
-    filenName = 'filekey.key'
-    if not os.path.exists(filenName):
-        logging.error(f"Encryption key does not exist please create one useing gen_key()")
-        exit(1)
-
-    with open(filenName, 'rb') as filekey:
-        key = filekey.read()
-    return key
-
-def encrypt(fileName):
-    key = get_key()
-  
-    # using the generated key
-    fernet = Fernet(key)
-    
-    # opening the original file to encrypt
-    with open(fileName, 'rb') as file:
-        original = file.read()
-        
-    # encrypting the file
-    encrypted = fernet.encrypt(original)
-    
-    # opening the file in write mode and 
-    # writing the encrypted data
-    with open(fileName, 'wb') as encrypted_file:
-        encrypted_file.write(encrypted)
-
-def decrypt(fileName):
-    key = get_key()
-
-    # using the key
-    fernet = Fernet(key)
-    
-    # opening the encrypted file
-    with open(fileName, 'rb') as enc_file:
-        encrypted = enc_file.read()
-    
-    # decrypting the file
-    decrypted = fernet.decrypt(encrypted)
-    
-    # opening the file in write mode and
-    # writing the decrypted data
-    with open(fileName, 'wb') as dec_file:
-        dec_file.write(decrypted)
 
 def split(drives, files, prefix="split"): #TODO: Add option to pass in folders instead of just files
     for file in files:
@@ -191,7 +117,7 @@ if __name__ == "__main__":
 TODO: Test run spit twice in a row
 TODO: Test run join twice in a row
 TODO: Fail correctly.  If we can not make all the splits make sure to make none of them.
-
+TODO: Add the drives that the file was split with in the name or somewhere else
 
 Test cases:
 No root directory in 1 of drives
