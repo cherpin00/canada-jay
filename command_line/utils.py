@@ -40,6 +40,19 @@ def get_key():
         key = filekey.read()
     return key
 
+def my_split(filename, bytes_per_file, prefix="."):
+    names = iter_all_strings()
+    with open(filename, "rb") as f:
+        while True:
+            bytes = f.read(bytes_per_file)
+            if bytes == b"":
+                break
+            outputFile = f"{prefix}{names.__next__()}"
+            logging.debug(f"Writing to {outputFile}")
+            with open(outputFile, "wb") as out_f:
+                out_f.write(bytes)
+            print(bytes)
+
 def encrypt(fileName):
     key = get_key()
   
