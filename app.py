@@ -11,7 +11,7 @@ import tkinter as tk
 from tkinter import filedialog
 
 sys.path.insert(0, './command_line')
-from command_line.cjay import split
+from command_line.cjay import split, join
 
 eel.init('web')
 root = tk.Tk()
@@ -23,65 +23,59 @@ drives = {}
     
 @eel.expose
 def load_db():
-    results = db.search(where('type') == 'file')
-    file_names = [r['name'] for r in results]
+    results_files = db.search(where('type') == 'file')
+    results_drives = db.search(where('type') == 'drive')
+    for result_file in results_files:
+        load_file(result_file)
+    for result_drive in results_drives:
+        load_drive(result_drive)
 
-    results = db.search(where('type') == 'drive')
-    drives = [r['name'] for r in results]
+@eel.expose
+def load_file(result):
+    eel.add_content(result['name'], "file_saved", "files_saved", "p", result.doc_id)
+    return result['name']
 
-    for name0 in file_names:
-        load_file(name0,0)
-    for name1 in drives:
-        load_drive(name1,0)
-    print(file_names)
+@eel.expose
+def load_drive(result):
+    drives[result.doc_id] = result['name']
+    eel.add_content(result['name'], "drive", "drives", "p", result.doc_id)
+    return result['name']
 
+@eel.expose
+def get_file_path(id):
+    obj = db.get(doc_id=int(id))
+    drives_list = [x.replace("/", os.path.sep) for x in drives.values()]
+    db.remove(doc_ids=[int(id)])
+    join(drives_list, [obj["name"]])
 
 @eel.expose
 def pythonFunction(file_count):
-    print(file_count)
     root.withdraw()
     file_path = filedialog.askopenfilename()
-    db.insert({'type': 'file', 'name' : file_path})
-    print(db.all())
     files[file_count] = file_path
     eel.inner_element_file_change(file_path) 
     eel.add_filename_change(file_path)
     return file_path
 
 @eel.expose
-def load_file(name, file_count):
-    eel.add_para_file(name, "files_saved") 
-    print(name)
-    return name
-
-@eel.expose
-def load_drive(name, drive_count):
-    drives[drive_count] = name
-    drives[drive_count] = name
-    print("drive here")
-    eel.add_para(name, "drives") 
-    return name
-
-@eel.expose
 def drive_addition(drive_count):
-    print(drive_count)
     root.withdraw()
     file_path = filedialog.askdirectory()
-    db.insert({'type': 'drive', 'name' : file_path})
-    print(db.all())
+    id = db.insert({'type': 'drive', 'name' : file_path})
     drives[drive_count] = file_path
-    eel.add_para(file_path, "drives") 
+    eel.add_content(file_path, "drive", "drives", "p", id) 
     return file_path
 
 @eel.expose
 def split_function_call():
-    print(files)
-    print(drives)
-
+    for value in files.values():
+        if not db.contains(Query().fragment({'type': 'file', 'name': value})):
+            id = db.insert({'type': 'file', 'name' : value})
+            eel.add_content(value, "file_saved", "files_saved", "p", id)
     files_list = [x.replace("/", os.path.sep) for x in files.values()]
     drives_list = [x.replace("/", os.path.sep) for x in drives.values()]
-    print(db.all())
     split(drives_list, files_list)
-
+    files.clear()
+    eel.remove_to_split()
 
 eel.start('index.html')
