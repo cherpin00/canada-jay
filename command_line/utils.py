@@ -1,6 +1,7 @@
 from string import ascii_lowercase
 import itertools
 import subprocess
+import os
 
 from cryptography.fernet import Fernet
 
