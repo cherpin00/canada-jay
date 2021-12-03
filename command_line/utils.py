@@ -4,6 +4,8 @@ import subprocess
 import os
 import logging
 from tinydb import TinyDB, Query
+import unicodedata
+import re
 
 from cryptography.fernet import Fernet
 
@@ -37,7 +39,7 @@ def gen_key():
 def get_key():
     filenName = 'filekey.key'
     if not os.path.exists(filenName):
-        logging.error(f"Encryption key does not exist please create one useing gen_key()")
+        logging.error(f"Encryption key does not exist please create one using gen_key()")
         exit(1)
 
     with open(filenName, 'rb') as filekey:
@@ -92,3 +94,19 @@ def decrypt(fileName):
     # writing the decrypted data
     with open(fileName, 'wb') as dec_file:
         dec_file.write(decrypted)
+
+def slugify(value, allow_unicode=False):
+    """
+    Taken from https://github.com/django/django/blob/master/django/utils/text.py
+    Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
+    dashes to single dashes. Remove characters that aren't alphanumerics,
+    underscores, or hyphens. Convert to lowercase. Also strip leading and
+    trailing whitespace, dashes, and underscores.
+    """
+    value = str(value)
+    if allow_unicode:
+        value = unicodedata.normalize('NFKC', value)
+    else:
+        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+    value = re.sub(r'[^\w\s-]', '', value.lower())
+    return re.sub(r'[-\s]+', '-', value).strip('-_')

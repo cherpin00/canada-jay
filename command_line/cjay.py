@@ -5,7 +5,7 @@ import logging
 import shutil
 import glob
 
-from utils import encrypt, decrypt, my_split, run, concat_files
+from utils import encrypt, decrypt, my_split, run, concat_files, slugify
 
 g_driveRoot = "canada_jay_root"
 

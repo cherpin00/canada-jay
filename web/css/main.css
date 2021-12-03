@@ -8,10 +8,6 @@ body{
   background-color: #f4f4f4;
 }
 
-#button:hover{
-  cursor: pointer;
-}
-
 .topnav {
   background-color: #006cbf;
   overflow: hidden;
@@ -78,11 +74,7 @@ h3{
 }
 
 #button{
-  padding: 3px 8px;
-  border: 2px solid #ddd;
-  background-color: #f4f4f4;
-  font-weight: bold;
-  font-size: 15px;
+
 }
 
 .split-header{
@@ -90,10 +82,12 @@ h3{
   align-items: center;
   border-bottom: 2px #ddd solid;
   border-bottom: 2px #006cbf solid;
+  border-bottom: 2px #888 solid;
 }
 
 .file{
   word-break: break-all;
+  padding: 3px 0px;
 }
 
 .class-for-filenames{
@@ -102,4 +96,65 @@ h3{
 
 .class-for-filenames p{
   padding: 3px 0px;
+  width: 80%;
+}
+
+.inline-div{
+  width: 10px;
+  height: 2px;
+  /*margin: auto auto auto 0;*/
+  /*background-color: red;*/
+}
+
+.button-style{
+  padding: 3px 8px;
+  border: 2px solid #ddd;
+  background-color: #f4f4f4;
+  font-weight: bold;
+  font-size: 15px;
+
+}
+
+.button-style-header{
+  padding: 3px 8px;
+  border: 2px solid #ddd;
+  background-color: #f4f4f4;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.button-style:hover, .button-style-header:hover{
+  cursor: pointer;
+}
+
+#button2{
+  display: inline;
+}
+
+.drive-header{
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding-right: 30px;
+  align-content: center;
+  margin: 10px 0px;
+}
+
+.flex-container{
+  display: flex;
+  justify-content: space-between;
+}
+
+.left{
+  width: 50%;
+}
+
+.drives{
+  word-break: break-all;
+  padding: 4px 0px;
+  width: 80%;
+}
+
+.right{
+  width: 50%;
 }
