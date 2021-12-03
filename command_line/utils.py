@@ -33,7 +33,7 @@ def gen_key():
 def get_key():
     filenName = 'filekey.key'
     if not os.path.exists(filenName):
-        logging.error(f"Encryption key does not exist please create one useing gen_key()")
+        logging.error(f"Encryption key does not exist please create one using gen_key()")
         exit(1)
 
     with open(filenName, 'rb') as filekey:
