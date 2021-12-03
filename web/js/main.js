@@ -10,6 +10,11 @@ function prompt_alerts(description) {
   alert(description);
 }
 
+eel.expose(db);
+function db() {
+  eel.load_db();
+}
+
 eel.expose(inner_element_file_change);
 function inner_element_file_change(path) {
   const btn = document.getElementById("filename");
@@ -53,14 +58,26 @@ function add_para(content, element_name) {
   drive_count ++;
 }
 
+eel.expose(add_para_file);
+function add_para_file(content, element_name) {
+  const para = document.createElement("p");
+  para.setAttribute("id", "file_saved" + drive_count);
+  para.setAttribute("class", element_name);
+  const node = document.createTextNode(content );
+  para.appendChild(node);
+  const element = document.getElementById(element_name);
+  element.appendChild(para);
+
+  const div = document.createElement("div");
+  div.setAttribute("id", "div" + drive_count);
+  div.setAttribute("class", "inline-div");
+  element.appendChild(div);
+  drive_count ++;
+}
+
 eel.expose(getPathToFile);
 function getPathToFile() {
     eel.pythonFunction()(call_back);
-
-    //eel.pythonFunction(){
-    //  const btn = document.getElementById("filename");
-    //  btn.innerHTML = path;
-    //}
   };
 
   function call_back(output){
