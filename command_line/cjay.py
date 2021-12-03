@@ -16,6 +16,19 @@ def get_parser():
     parser.add_argument("-j", "--join", action="store_true", help="Join the specified files using drives specified.")
     return parser
 
+def get_usage(drives): #TODO: 
+    stat = shutil.disk_usage(drives[0])
+    used_drives = {os.path.splitdrive(drives[0])[0]}
+    for d in drives[1:]:
+        if os.path.splitdrive(d)[0] in used_drives:
+            continue
+        used_drives.add(os.path.splitdrive(d)[0])
+        new = shutil.disk_usage(d)
+        stat.total += new.total
+        stat.free += new.free
+        stat.used += new.used
+    return stat
+
 def split(drives, files, prefix="split"): #TODO: Add option to pass in folders instead of just files
     tmpFolder = "temp"
     for file in files:
@@ -111,6 +124,8 @@ def main():
     else:
         args = parser.parse_args()
 
+    print(get_usage(["C:\\", "google_drive"]))
+    exit()
     if args.join:
         join(args.drives, args.files)
     else:
