@@ -2,6 +2,7 @@ from string import ascii_lowercase
 import itertools
 import subprocess
 import os
+import logging
 
 from cryptography.fernet import Fernet
 
