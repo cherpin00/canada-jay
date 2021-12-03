@@ -3,6 +3,7 @@ import itertools
 import subprocess
 import os
 import logging
+from tinydb import TinyDB, Query
 
 from cryptography.fernet import Fernet
 
@@ -21,6 +22,9 @@ def concat_files(outputFile, fileNames):
             with open(fname) as infile:
                 for line in infile:
                     outfile.write(line)
+
+def get_db(database):
+    return TinyDB(database)
 
 def gen_key():
     # key generation

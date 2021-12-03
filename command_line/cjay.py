@@ -29,38 +29,37 @@ def split(drives, files, prefix="split"): #TODO: Add option to pass in folders i
             tmpFolder = "temp"
             if not os.path.exists(tmpFolder):
                 os.mkdir(tmpFolder)
-            my_split(file, partSize, f"{os.path.join(tmpFolder, prefix)}-{file}-")
+            my_split(file, partSize, f"{os.path.join(tmpFolder, prefix)}-{slugify(file)}-")
             # run(f"split -b {partSize} {file} {os.path.join(tmpFolder, prefix)}-{file}-")
-
-            count = 0
-            for obj in os.scandir(tmpFolder):
-                if obj.is_file():
-                    destination = os.path.join(drives[count], g_driveRoot) + os.path.sep
-                    destination = os.path.join(destination, os.path.basename(obj.path))
-                    if not os.path.exists(os.path.join(drives[count], g_driveRoot)): #TODO: Add option to make drive if not exists.
-                        curdir = os.getcwd()
-                        try:
-                            logging.debug(f"Creating {g_driveRoot} folder in {drives[count]}")
-                            os.chdir(drives[count])
-                            os.mkdir(g_driveRoot)
-                        except Exception as e: #TODO: Don't except all errors here.  Might be okay because we throw it again
-                            logging.error(f"Could not create root folder {g_driveRoot} in {drives[count]}.  Please create it manually.")
-                            logging.info(f"Could not create root folder {g_driveRoot} in {drives[count]}.  Please create it manually.")
-                            shutil.rmtree(tmpFolder) #TODO: Create on cleanup function that we can call so we DRY
-                            exit(1)
-                        finally:
-                            os.chdir(curdir)
-                    logging.debug(f"moving {obj.path} to {destination}")
-                    try:
-                        shutil.move(obj.path, destination)
-                    except shutil.Error as e:
-                        logging.error(f"Failed moving {obj.path} to {os.path.abspath(destination)}.  Exiting.")
-                        logging.error(f"Error message: {e}")
-                        exit(1)
-                count+=1
         except Exception as e: #TODO: add a status (maybe in a file or database.  So that we can undo the steps if we get an error)
             decrypt(file)
             raise e
+
+        count = 0
+        for file in files:
+            destination = os.path.join(drives[count], g_driveRoot) + os.path.sep
+            destination = os.path.join(destination, slugify(file))
+            if not os.path.exists(os.path.join(drives[count], g_driveRoot)): #TODO: Add option to make drive if not exists.
+                curdir = os.getcwd()
+                try:
+                    logging.debug(f"Creating {g_driveRoot} folder in {drives[count]}")
+                    os.chdir(drives[count])
+                    os.mkdir(g_driveRoot)
+                except Exception as e: #TODO: Don't except all errors here.  Might be okay because we throw it again
+                    logging.error(f"Could not create root folder {g_driveRoot} in {drives[count]}.  Please create it manually.")
+                    logging.info(f"Could not create root folder {g_driveRoot} in {drives[count]}.  Please create it manually.")
+                    shutil.rmtree(tmpFolder) #TODO: Create on cleanup function that we can call so we DRY
+                    exit(1)
+                finally:
+                    os.chdir(curdir)
+                logging.debug(f"moving {obj.path} to {destination}")
+                try:
+                    shutil.move(obj.path, destination)
+                except shutil.Error as e:
+                    logging.error(f"Failed moving {obj.path} to {os.path.abspath(destination)}.  Exiting.")
+                    logging.error(f"Error message: {e}")
+                    exit(1)
+            count+=1
 
         os.remove(file)
     if os.path.exists(tmpFolder):
