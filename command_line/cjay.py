@@ -63,7 +63,7 @@ def split(drives, files, prefix="split"): #TODO: Add option to pass in folders i
                             logging.error(f"Could not create root folder {g_driveRoot} in {drives[count]}.  Please create it manually.")
                             logging.info(f"Could not create root folder {g_driveRoot} in {drives[count]}.  Please create it manually.")
                             shutil.rmtree(tmpFolder) #TODO: Create on cleanup function that we can call so we DRY
-                            exit(1)
+                            return False
                         finally:
                             os.chdir(curdir)
                     logging.debug(f"moving {obj.path} to {destination}")
@@ -72,7 +72,7 @@ def split(drives, files, prefix="split"): #TODO: Add option to pass in folders i
                     except shutil.Error as e:
                         logging.error(f"Failed moving {obj.path} to {os.path.abspath(destination)}.  Exiting.")
                         logging.error(f"Error message: {e}")
-                        exit(1)
+                        return False
                 count+=1
         except Exception as e: #TODO: add a status (maybe in a file or database.  So that we can undo the steps if we get an error)
             decrypt(file)
@@ -124,8 +124,6 @@ def main():
     else:
         args = parser.parse_args()
 
-    print(get_usage(["C:\\", "google_drive"]))
-    exit()
     if args.join:
         join(args.drives, args.files)
     else:
