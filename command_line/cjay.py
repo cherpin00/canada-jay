@@ -68,6 +68,7 @@ def split(drives, files, prefix="split"): #TODO: Add option to pass in folders i
         os.remove(file)
     if os.path.exists(tmpFolder):
         os.rmdir(tmpFolder)
+    return True
 
 def join(drives, files, prefix="split"):
     tempFolder = "temp"
@@ -100,6 +101,7 @@ def join(drives, files, prefix="split"):
             os.remove(f)
     if os.path.exists(tempFolder):
         os.rmdir(tempFolder)
+    return True
 
 
 def main():

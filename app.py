@@ -69,14 +69,15 @@ def drive_addition(drive_count):
 
 @eel.expose
 def split_function_call():
-    for value in files.values():
-        if not db.contains(Query().fragment({'type': 'file', 'name': value})):
-            id = db.insert({'type': 'file', 'name' : value})
-            eel.add_content(value, "file_saved", "files_saved", "p", id)
     files_list = [x.replace("/", os.path.sep) for x in files.values()]
     drives_list = [x.replace("/", os.path.sep) for x in drives.values()]
-    split(drives_list, files_list)
-    files.clear()
     eel.remove_to_split()
+    if split(drives_list, files_list):
+        for value in files.values():
+            if not db.contains(Query().fragment({'type': 'file', 'name': value})):
+                id = db.insert({'type': 'file', 'name' : value})
+                eel.add_content(value, "file_saved", "files_saved", "p", id)
+    files.clear()
+
 
 eel.start('index.html')
