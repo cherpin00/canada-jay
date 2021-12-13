@@ -79,5 +79,4 @@ def split_function_call():
                 eel.add_content(value, "file_saved", "files_saved", "p", id)
     files.clear()
 
-
 eel.start('index.html')
