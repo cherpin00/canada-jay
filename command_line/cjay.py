@@ -16,6 +16,19 @@ def get_parser():
     parser.add_argument("-j", "--join", action="store_true", help="Join the specified files using drives specified.")
     return parser
 
+def get_usage(drives): #TODO: 
+    stat = shutil.disk_usage(drives[0])
+    used_drives = {os.path.splitdrive(drives[0])[0]}
+    for d in drives[1:]:
+        if os.path.splitdrive(d)[0] in used_drives:
+            continue
+        used_drives.add(os.path.splitdrive(d)[0])
+        new = shutil.disk_usage(d)
+        stat.total += new.total
+        stat.free += new.free
+        stat.used += new.used
+    return stat
+
 def split(drives, files, prefix="split"): #TODO: Add option to pass in folders instead of just files
     tmpFolder = "temp"
     for file in files:
@@ -50,7 +63,7 @@ def split(drives, files, prefix="split"): #TODO: Add option to pass in folders i
                             logging.error(f"Could not create root folder {g_driveRoot} in {drives[count]}.  Please create it manually.")
                             logging.info(f"Could not create root folder {g_driveRoot} in {drives[count]}.  Please create it manually.")
                             shutil.rmtree(tmpFolder) #TODO: Create on cleanup function that we can call so we DRY
-                            exit(1)
+                            return False
                         finally:
                             os.chdir(curdir)
                     logging.debug(f"moving {obj.path} to {destination}")
@@ -59,7 +72,7 @@ def split(drives, files, prefix="split"): #TODO: Add option to pass in folders i
                     except shutil.Error as e:
                         logging.error(f"Failed moving {obj.path} to {os.path.abspath(destination)}.  Exiting.")
                         logging.error(f"Error message: {e}")
-                        exit(1)
+                        return False
                 count+=1
         except Exception as e: #TODO: add a status (maybe in a file or database.  So that we can undo the steps if we get an error)
             decrypt(file)
